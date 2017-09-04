@@ -22,7 +22,24 @@
     static unsigned long long lastReceived, lastSent;  
     int sockfd, client, portno;  
 
-    int getCPU(){
+    int getRAMAvailable() {
+        FILE* file3 = fopen("/proc/meminfo", "r");
+        char buf[200], ifname[20];
+        unsigned long int kbytes, value;
+    
+        while (fgets(buf, 200, file3)) {
+        sscanf(buf, "%[^:]: %lu",
+                   ifname, &kbytes);
+            std::string str(ifname);
+            if (str == "MemAvailable") {
+                value = kbytes;
+            }
+        }
+        fclose(file3);         
+        return (int)value/1024;    
+    }
+
+    int getCPU() {
         double percent;
         FILE* file;
         unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
@@ -52,7 +69,7 @@
         return (int)percent;
     }
 
-    int getNetwork(int modo){   
+    int getNetwork(int modo) {   
         FILE* file2 = fopen("/proc/net/dev", "r");
         char buf[200], ifname[20];
         unsigned long int r_bytes, t_bytes, r_packets, t_packets;
@@ -156,8 +173,8 @@
         sysinfo (&memInfo);
         long long totalPhysMem = memInfo.totalram;
         totalPhysMem *= memInfo.mem_unit;
-        long long physMemUsed = memInfo.totalram - memInfo.freeram;
-        physMemUsed *= memInfo.mem_unit;
+        //long long physMemFree = memInfo.freeram;
+        //physMemFree *= memInfo.mem_unit;
 
         struct sockaddr_in serv_addr;     
 
@@ -194,7 +211,7 @@
                 sleep(1);                                        
 
                 std::ostringstream oss;                
-                oss << "{\"p\":" << getCPU() << ",\"ml\":" << (totalPhysMem-physMemUsed)/1024/1024 << ",\"mt\":" << totalPhysMem/1024/1024 << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
+                oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << totalPhysMem/1024/1024 << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
                 char * ret = new char [oss.str().length()+1];
                 strcpy(ret, oss.str().c_str());
 
