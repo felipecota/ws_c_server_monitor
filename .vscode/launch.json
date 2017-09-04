@@ -5,7 +5,7 @@
             "name": "C++ Attach (GDB)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/myprogram",
+            "program": "${workspaceRoot}/server",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",

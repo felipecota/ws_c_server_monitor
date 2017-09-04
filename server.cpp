@@ -195,7 +195,7 @@
 
                 std::ostringstream oss;                
                 oss << "{\"p\":" << getCPU() << ",\"ml\":" << (totalPhysMem-physMemUsed)/1024/1024 << ",\"mt\":" << totalPhysMem/1024/1024 << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
-                char * ret = new char [oss.str().length()+1];;
+                char * ret = new char [oss.str().length()+1];
                 strcpy(ret, oss.str().c_str());
 
                 char resp[] = {' ', ' ', '\0'};
