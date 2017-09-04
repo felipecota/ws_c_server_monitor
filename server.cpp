@@ -184,8 +184,8 @@
         bzero((char *) &serv_addr, sizeof(serv_addr));
 
         int enable = 1;
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-            error("setsockopt(SO_REUSEADDR) failed");        
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+        //setsockopt(sockfd, SOL_SOCKET, MSG_NOSIGNAL, &enable, sizeof(int));          
 
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -219,16 +219,13 @@
                 resp[0] = 0x81;
                 resp[1] = strlen(ret);
                 strcat(resp, ret);   
-                
-                n = write(client,resp,strlen(resp)); 
-                i++;
-
-                //std::cout << ret << "\n";
-
+                //std::cout << ret << "\n";                
+                n = send(client,resp,strlen(resp),MSG_NOSIGNAL); 
                 if (n < 0) {
                     //std::cout << "cliente desconectou\n";
                     client = 0;
                 };  
+                i++;
             } else {
                 escuta();
             }
