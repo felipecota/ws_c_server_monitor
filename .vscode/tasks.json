@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "server.cpp", "-lssl", "-lcrypto", "-std=gnu++11", "-lpthread", "-o", "myprogram"
+                "-g", "server.cpp", "-lssl", "-lcrypto", "-std=gnu++11", "-lpthread", "-o", "server"
             ],
             "group": {
                 "kind": "build",
