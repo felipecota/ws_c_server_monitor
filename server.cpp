@@ -14,7 +14,6 @@
     #include <openssl/evp.h>
     #include <openssl/bio.h>
     #include <openssl/buffer.h>
-    #include <future>
     #include <sstream> 
 
     struct sysinfo memInfo;
@@ -26,16 +25,19 @@
         FILE* file3 = fopen("/proc/meminfo", "r");
         char buf[200], ifname[20];
         unsigned long int kbytes, value;
-    
+   
         while (fgets(buf, 200, file3)) {
         sscanf(buf, "%[^:]: %lu",
                    ifname, &kbytes);
             std::string str(ifname);
             if (str == "MemAvailable") {
                 value = kbytes;
+            } else if (str == "MemFree") { // Algumas máquinas não tem o MemAvailable
+                value = kbytes;
             }
         }
-        fclose(file3);         
+        fclose(file3);      
+
         return (int)value/1024;    
     }
 
@@ -173,8 +175,6 @@
         sysinfo (&memInfo);
         long long totalPhysMem = memInfo.totalram;
         totalPhysMem *= memInfo.mem_unit;
-        //long long physMemFree = memInfo.freeram;
-        //physMemFree *= memInfo.mem_unit;
 
         struct sockaddr_in serv_addr;     
 
