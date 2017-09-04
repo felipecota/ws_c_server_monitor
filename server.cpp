@@ -189,7 +189,7 @@
 
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_port = htons(8081);
+        serv_addr.sin_port = htons(8082);
     
         if (bind(sockfd, (struct sockaddr *) &serv_addr,
                     sizeof(serv_addr)) < 0) 
