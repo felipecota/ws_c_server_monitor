@@ -5,7 +5,7 @@
             "name": "C++ Attach (GDB)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/server",
+            "program": "${workspaceRoot}/sMonitor",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
