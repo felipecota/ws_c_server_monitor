@@ -1,4 +1,6 @@
-    // Versão 1.0
+    // Version 1.0
+    // Author: Felipe Cota (felipe_cota@hotmail.com)
+    // CPU Usage code from https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
     
     #include "stdio.h"
     #include <iostream>
@@ -15,6 +17,7 @@
     #include <openssl/bio.h>
     #include <openssl/buffer.h>
     #include <sstream> 
+    #include <sys/fcntl.h>
 
     struct sysinfo memInfo;
     static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
@@ -32,7 +35,7 @@
             std::string str(ifname);
             if (str == "MemAvailable") {
                 value = kbytes;
-            } else if (str == "MemFree") { // Algumas máquinas não tem o MemAvailable
+            } else if (str == "MemFree") { // Some machines don't have MemAvailable so get MemFree
                 value = kbytes;
             }
         }
@@ -135,20 +138,21 @@
       return buff;
     }   
     
-    void escuta () {     
-        //std::cout << "escutando\n";
-
+    void waitclient () {     
         struct sockaddr_in cli_addr;
         socklen_t clilen;
         char buffer[1024];
         int n;        
 
         clilen = sizeof(cli_addr);
-        client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        std::cout << "Waiting for client1 \n";                        
+        client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);        
         if (client < 0) error("ERROR on accept");
+        std::cout << "Waiting for client2 \n";                
         bzero(buffer,1024);
         n = read(client,buffer,1023);
         if (n < 0) error("ERROR reading from socket");
+        std::cout << "Client connected \n";        
         std::string str(buffer);
         std::string key = str.substr(str.find("Sec-WebSocket-Key")+19);
         key = key.substr(0, key.find("Sec-WebSocket-Extensions")-2) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";        
@@ -166,7 +170,10 @@
         strcat(resp, fim);                
         n = write(client,resp,strlen(resp));        
               
-        if (n < 0) error("ERROR writing to socket");  
+        if (n < 0) 
+            error("ERROR writing to socket");
+        //else
+            //escuta();
         //std::cout << "n:" << n << "\n";
     }    
 
@@ -185,7 +192,7 @@
 
         int enable = 1;
         setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
-        //setsockopt(sockfd, SOL_SOCKET, MSG_NOSIGNAL, &enable, sizeof(int));          
+        //fcntl(sockfd, F_SETFL, O_NONBLOCK); 
 
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -197,19 +204,17 @@
         listen(sockfd,5);   
         int n, p, i = 0; 
 
-        // Inicio os contadores
+        // Get first values
         getCPU();
         getNetwork(0);
+        //waitclient();
         
         for (;;) {
-            //std::cout << "cliente: " << client << "\n";
+            // Wait 1 second to read again
+            // Data on client will be refreshed every 1 second too
+            sleep(1);             
             if (client > 0) {
-                //std::cout << "enviando para cliente - " << i << " \n";
-
-                // Aguardo 1 segundo para fazer a medição dos valores novos em relação aos anteriores
-                // A tela também atualiza o servidor de 1 em 1 segundo
-                sleep(1);                                        
-
+                //std::cout << "Sending to client - " << client << " \n";                                     
                 std::ostringstream oss;                
                 oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << totalPhysMem/1024/1024 << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
                 char * ret = new char [oss.str().length()+1];
@@ -222,12 +227,12 @@
                 //std::cout << ret << "\n";                
                 n = send(client,resp,strlen(resp),MSG_NOSIGNAL); 
                 if (n < 0) {
-                    //std::cout << "cliente desconectou\n";
+                    //std::cout << "Client disconnected\n";
                     client = 0;
                 };  
                 i++;
             } else {
-                escuta();
+                waitclient();
             }
         }
 
