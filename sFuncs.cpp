@@ -2,10 +2,15 @@
 #include "sys/sysinfo.h"
 #include <iostream>
 
+#include "free.cpp"
+
 struct sysinfo memInfo;
 static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
 static unsigned long long lastReceived, lastSent;  
 
+// My system uses old kernel so I'm using free.pl to get available memory.
+// For new system you can use the code above
+/*
 int getRAMAvailable() {
     FILE* file3 = fopen("/proc/meminfo", "r");
     char buf[200], ifname[20];
@@ -17,14 +22,12 @@ int getRAMAvailable() {
         std::string str(ifname);
         if (str == "MemAvailable") {
             value = kbytes;
-        } else if (str == "MemFree") { // Some machines don't have MemAvailable so get MemFree
-            value = kbytes;
-        }
     }
     fclose(file3);      
 
-    return (int)value/1024;    
+    return (int)value/1024;  
 }
+*/
 
 int getRAMTotal() {
     sysinfo (&memInfo);

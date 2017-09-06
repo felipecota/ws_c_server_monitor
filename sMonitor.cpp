@@ -12,7 +12,7 @@
     #include "sFuncs.cpp"
 
     int sockfd, client, portno; 
-    int port = 8081; // 8082 production 
+    int port = 8082;
 
     void error(const char *msg)
     {
