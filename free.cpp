@@ -7,9 +7,6 @@
 int getRAMAvailable() {
     FILE* fp = popen("./free.pl", "r");
     if(fp) {
-        std::vector<char> buffer(4096);
-        //std::size_t n = fread(buffer.data(), 1, buffer.size(), fp);
-
         char buf[200], ifname[20];
         unsigned long int kbytes;
 
