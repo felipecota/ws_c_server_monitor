@@ -1,5 +1,4 @@
     // Version 1.0
-    // Author: Felipe Cota (felipe_cota@hotmail.com)
     // CPU Usage code from https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
     
     #include <unistd.h>
