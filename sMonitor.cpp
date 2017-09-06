@@ -1,6 +1,5 @@
     // Version 1.0
-    // CPU Usage code from https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
-    
+        
     #include <unistd.h>
     #include <string.h>
     #include <netinet/in.h>
@@ -9,9 +8,11 @@
     #include <openssl/buffer.h>
     #include <sstream> 
 
+    // Functions to read CPU, RAM and Network
     #include "sFuncs.cpp"
 
     int sockfd, client, portno; 
+    // Port where websocket will listen for clients
     int port = 8082;
 
     void error(const char *msg)
@@ -20,6 +21,7 @@
         exit(1);
     }
     
+    // The handshake hash key must be sent in base64
     char *base64(const unsigned char *input, int length)
     {
       BIO *bmem, *b64;
@@ -41,12 +43,14 @@
       return buff;
     }   
     
-    void waitclient () {     
+    void waitclient () {    
+
         struct sockaddr_in cli_addr;
         socklen_t clilen;
         char buffer[1024];
         int n;        
 
+        // Waiting for client
         clilen = sizeof(cli_addr);
         //std::cout << "Waiting for client \n";                        
         client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);        
@@ -57,28 +61,31 @@
         if (n < 0) 
             error("ERROR reading from socket");
         //std::cout << "Client connected \n";        
+
+        // Getting the key from client
         std::string str(buffer);
         std::string key = str.substr(str.find("Sec-WebSocket-Key")+19);
         key = key.substr(0, key.find("Sec-WebSocket-Extensions")-2) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";        
+
+        // Getting SHA1 hash from key + guid
         char ibuf[key.length()];
         strcpy(ibuf, key.c_str());
-        unsigned char obuf[20];
+        unsigned char obuf[20];       
         SHA1((unsigned char *)ibuf, strlen(ibuf), obuf);
 
+        // Creating Handshake message
         char * b64(base64(obuf,20));        
         char * hs = (char*)"HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
         char * fim = (char*)"\r\n\r\n";        
         char resp[0];
         strcpy(resp, hs);        
         strcat(resp, b64);        
-        strcat(resp, fim);                
-        n = write(client,resp,strlen(resp));        
-              
+        strcat(resp, fim);
+        
+        // Sending handshake back to client
+        n = write(client,resp,strlen(resp));                      
         if (n < 0) 
             error("ERROR writing to socket");
-        //else
-            //escuta();
-        //std::cout << "n:" << n << "\n";
     }    
 
     int main()    
@@ -92,6 +99,9 @@
 
         int enable = 1;
         setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+
+        //Failure try to work with multiple clients -- assync listen
+        //I will try it again in the future
         //fcntl(sockfd, F_SETFL, O_NONBLOCK); 
 
         serv_addr.sin_family = AF_INET;
@@ -107,6 +117,7 @@
         // Get first values
         getCPU();
         getNetwork(0);
+        int ramTotal = getRAMTotal();
         
         for (;;) {
             // Wait 1 second to read again
@@ -115,7 +126,7 @@
             if (client > 0) {
                 //std::cout << "Sending to client - " << client << " \n";                                     
                 std::ostringstream oss;                
-                oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << getRAMTotal() << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
+                oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << ramTotal << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
                 char * ret = new char [oss.str().length()+1];
                 strcpy(ret, oss.str().c_str());
 

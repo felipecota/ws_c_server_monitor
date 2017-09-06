@@ -36,6 +36,7 @@ int getRAMTotal() {
     return totalPhysMem/1024/1024;    
 }
 
+// CPU Usage code from https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
 int getCPU() {
     double percent;
     FILE* file;
