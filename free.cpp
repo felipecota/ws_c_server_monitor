@@ -7,7 +7,7 @@
 int getRAMAvailable() {
     FILE* fp = popen("./free.pl", "r");
     if(fp) {
-        char buf[200], ifname[20];
+        char buf[200];
         unsigned long int kbytes;
 
         while (fgets(buf, 200, fp)) {
