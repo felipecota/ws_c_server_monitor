@@ -1,12 +1,12 @@
-#WebSocket
+# WebSocket
 
 WebSocket Server C++ to monitor CPU, RAM and Network usage for Ubuntu/Linux
 
-Compile 
+## Compile 
 
 command: g++ sMonitor.cpp -lcrypto -lpthread -o sMonitor
 
-##Client
+## Client
 
 ws = new WebSocket('ws://localhost:8081');
 ws.onopen = function () { ws.send('Ping'); };
@@ -17,5 +17,5 @@ ws.onmessage = function (e) {
     console.log(e.data);
 };
 
-##Author
+## Author
 Felipe Cota
