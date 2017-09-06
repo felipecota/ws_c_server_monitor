@@ -77,35 +77,38 @@
     int getNetwork(int modo) {   
         FILE* file2 = fopen("/proc/net/dev", "r");
         char buf[200], ifname[20];
-        unsigned long int r_bytes, t_bytes, r_packets, t_packets;
+        unsigned long int r_bytes, t_bytes, r_packets, t_packets, total_r_bytes, total_t_bytes;
         int total;
     
         // skip first lines
         for (int i = 0; i < 2; i++) {
             fgets(buf, 200, file2);
         }
+
+        total_r_bytes = 0;
+        total_t_bytes = 0;
     
         while (fgets(buf, 200, file2)) {
             sscanf(buf, "%[^:]: %lu %lu %*u %*u %*u %*u %*u %*u %lu %lu",
                    ifname, &r_bytes, &r_packets, &t_bytes, &t_packets);
-            r_bytes += r_bytes;
-            t_bytes += t_bytes;
-            //printf("%s: rbytes: %lu rpackets: %lu tbytes: %lu tpackets: %lu\n", ifname, r_bytes, r_packets, t_bytes, t_packets);
+            total_r_bytes += r_bytes;
+            total_t_bytes += t_bytes;
+            //printf("rbytes: %lu tbytes: %lu\n", total_r_bytes, total_t_bytes);
         }
         fclose(file2);     
         
         if (modo == 0) {
             total = -1;
-            lastReceived = r_bytes;
-            lastSent = t_bytes;            
+            lastReceived = total_r_bytes;
+            lastSent = total_t_bytes;            
         } else if (modo == 1) {
-            total = r_bytes - lastReceived;
+            total = total_r_bytes - lastReceived;
             //printf("modo1 %lu %llu %i \n", r_bytes, lastReceived, total);                
-            lastReceived = r_bytes;                
+            lastReceived = total_r_bytes;                
         } else {                
-            total = t_bytes - lastSent;
+            total = total_t_bytes - lastSent;
             //printf("modo2 %lu %llu %i \n", t_bytes, lastSent, total);                
-            lastSent = t_bytes;    
+            lastSent = total_t_bytes;    
         }              
 
         return total/1024/1024*8;
@@ -145,14 +148,13 @@
         int n;        
 
         clilen = sizeof(cli_addr);
-        std::cout << "Waiting for client1 \n";                        
+        //std::cout << "Waiting for client \n";                        
         client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);        
-        if (client < 0) error("ERROR on accept");
-        std::cout << "Waiting for client2 \n";                
+        if (client < 0) error("ERROR on accept");        
         bzero(buffer,1024);
         n = read(client,buffer,1023);
         if (n < 0) error("ERROR reading from socket");
-        std::cout << "Client connected \n";        
+        //std::cout << "Client connected \n";        
         std::string str(buffer);
         std::string key = str.substr(str.find("Sec-WebSocket-Key")+19);
         key = key.substr(0, key.find("Sec-WebSocket-Extensions")-2) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";        
