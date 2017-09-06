@@ -50,10 +50,12 @@
         clilen = sizeof(cli_addr);
         //std::cout << "Waiting for client \n";                        
         client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);        
-        if (client < 0) error("ERROR on accept");        
+        if (client < 0) 
+            error("ERROR on accept");        
         bzero(buffer,1024);
         n = read(client,buffer,1023);
-        if (n < 0) error("ERROR reading from socket");
+        if (n < 0) 
+            error("ERROR reading from socket");
         //std::cout << "Client connected \n";        
         std::string str(buffer);
         std::string key = str.substr(str.find("Sec-WebSocket-Key")+19);
