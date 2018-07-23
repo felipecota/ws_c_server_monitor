@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-// Using perl script (free.pl) from https://github.com/famzah/linux-memavailable-procfs/blob/master/Linux-MemAvailable.pm
+// Using perl script (free.pl) from https://github.com/famzah/linux-memavailable-procfs/
 
 int getRAMAvailable() {
     
