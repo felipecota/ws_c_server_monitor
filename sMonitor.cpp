@@ -121,7 +121,6 @@
         
         for (;;) {
             // Wait 1 second to read again
-            // Data on client will be refreshed every 1 second too
             sleep(1);             
             if (client > 0) {
                 //std::cout << "Sending to client " << client << " - mem " << getRAMAvailable()  << " \n";                                     
