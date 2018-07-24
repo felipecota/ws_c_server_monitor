@@ -96,13 +96,13 @@ int getNetwork(int modo) {
         lastSent = total_t_bytes;            
     } else if (modo == 1) {
         total = total_r_bytes - lastReceived;
-        //printf("modo1 %lu %llu %i \n", r_bytes, lastReceived, total);                
+        //printf("modo1 %lu %llu %i %i \n", total_r_bytes, lastReceived, total, total*8/1024/1024);                
         lastReceived = total_r_bytes;                
     } else {                
         total = total_t_bytes - lastSent;
-        //printf("modo2 %lu %llu %i \n", t_bytes, lastSent, total);                
+        //printf("modo2 %lu %llu %i %i \n", total_t_bytes, lastSent, total, total*8/1024/1024);                
         lastSent = total_t_bytes;    
     }              
 
-    return total/1024/1024*8;
+    return total*8/1024/1024;
 }    
