@@ -124,7 +124,7 @@
             // Data on client will be refreshed every 1 second too
             sleep(1);             
             if (client > 0) {
-                //std::cout << "Sending to client - " << client << " \n";                                     
+                //std::cout << "Sending to client " << client << " - mem " << getRAMAvailable()  << " \n";                                     
                 std::ostringstream oss;                
                 oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << ramTotal << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
                 char * ret = new char [oss.str().length()+1];
