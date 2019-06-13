@@ -7,9 +7,9 @@
     #include <openssl/hmac.h>
     #include <openssl/buffer.h>
     #include <sstream> 
-
-    // Functions to read CPU, RAM and Network
-    #include "sFuncs.cpp"
+        
+    // Functions
+    #include "sFuncs.cpp"    
 
     int sockfd, client, portno; 
     // Port where websocket will listen for clients
@@ -41,19 +41,18 @@
       BIO_free_all(b64);
     
       return buff;
-    }   
-    
-    void waitclient () {    
+    }
 
+    void waitclient() {    
         struct sockaddr_in cli_addr;
         socklen_t clilen;
-        char buffer[1024];
-        int n;        
-
+        int n;
+        char buffer[1024];         
+        
         // Waiting for client
         clilen = sizeof(cli_addr);
         //std::cout << "Waiting for client \n";                        
-        client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);        
+        client = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);                
         if (client < 0) 
             error("ERROR on accept");        
         bzero(buffer,1024);
@@ -85,8 +84,8 @@
         // Sending handshake back to client
         n = write(client,resp,strlen(resp));                      
         if (n < 0) 
-            error("ERROR writing to socket");
-    }    
+            error("ERROR writing to socket");                
+    }
 
     int main()    
     {
@@ -118,22 +117,22 @@
         getCPU();
         getNetwork(0);
         int ramTotal = getRAMTotal();
-        
+
         for (;;) {
             // Wait 1 second to read again
             sleep(1);             
-            if (client > 0) {
-                //std::cout << "Sending to client " << client << " - mem " << getRAMAvailable()  << " \n";                                     
-                std::ostringstream oss;                
-                oss << "{\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << ramTotal << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << "}";                                   
-                char * ret = new char [oss.str().length()+1];
-                strcpy(ret, oss.str().c_str());
+            //std::cout << "Sending to client " << client << " - mem " << getRAMAvailable()  << " \n";                                     
+            std::ostringstream oss;                
+            oss << "{\"v\":1,\"p\":" << getCPU() << ",\"ml\":" << getRAMAvailable() << ",\"mt\":" << ramTotal << ",\"re\":" << getNetwork(2) << ",\"rr\":" << getNetwork(1) << ",\"d\":[\"/:" << getFreeSpace() << "\"]}";                                   
+            char * ret = new char [oss.str().length()+1];
+            strcpy(ret, oss.str().c_str());
 
-                char resp[] = {' ', ' ', '\0'};
-                resp[0] = 0x81;
-                resp[1] = strlen(ret);
-                strcat(resp, ret);   
-                //std::cout << ret << "\n";                
+            char resp[] = {' ', ' ', '\0'};
+            resp[0] = 0x81;
+            resp[1] = strlen(ret);
+            strcat(resp, ret);   
+            //std::cout << "passei" << client1 << client2 << "\n";                
+            if (client > 0) {                
                 n = send(client,resp,strlen(resp),MSG_NOSIGNAL); 
                 if (n < 0) {
                     //std::cout << "Client disconnected\n";
@@ -142,7 +141,7 @@
                 i++;
             } else {
                 waitclient();
-            }
+            }        
         }
 
         return 0;

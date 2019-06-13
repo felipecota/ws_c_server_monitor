@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "sys/sysinfo.h"
 #include <iostream>
+#include <sys/statvfs.h>
 
 #include "free.cpp"
 
@@ -105,4 +106,13 @@ int getNetwork(int modo) {
     }              
 
     return total*8/1024/1024;
-}    
+}   
+
+int getFreeSpace() { 
+        struct statvfs fiData;
+        if((statvfs("/",&fiData)) < 0 ) {
+                return 0;
+        } else {
+                return fiData.f_bsize * fiData.f_bavail / 1024 / 1024 / 1024;
+        }
+}
