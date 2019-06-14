@@ -111,8 +111,8 @@ int getNetwork(int modo) {
 int getFreeSpace() { 
         struct statvfs fiData;
         if((statvfs("/",&fiData)) < 0 ) {
-                return 0;
+            return 0;
         } else {
-                return fiData.f_bsize * fiData.f_bavail / 1024 / 1024 / 1024;
+            return 100.0 * (double) (fiData.f_blocks - fiData.f_bfree) / (double) (fiData.f_blocks - fiData.f_bfree + fiData.f_bavail);
         }
 }
