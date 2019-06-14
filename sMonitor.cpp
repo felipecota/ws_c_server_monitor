@@ -275,6 +275,7 @@ int main(int argc , char *argv[])
                         //getpeername(sd, (struct sockaddr*)&address, (socklen_t*)&addrlen);                          
                         //printf("Host socket fd %i disconnected , ip %s , port %d \n", sd, inet_ntoa(address.sin_addr), ntohs(address.sin_port));                           
                         printf("Host socket fd %i disconnected \n", sd);
+                        close(sd);
                         client_socket[i] = 0;                            
                     };  
                 }                
