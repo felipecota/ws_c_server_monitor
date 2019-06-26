@@ -1,12 +1,9 @@
 Linux-MemAvailable.pm
 free.pl
 sMonitorCRC
-output_ubuntu/sMonitor
-output_debian/sMonitor
-output_debian/run_sMonitorCRC
+output_ubuntu
+output_debian
 monitor64.tar.gz
-output_ubuntu/sMonitor.conf
 sMonitor_old.cpp
-.vscode/ipch/439bdadf8ddc9a1e/sMonitor.ipch
-.vscode/ipch/439bdadf8ddc9a1e/mmap_address.bin
+.vscode
 sMonitor

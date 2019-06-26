@@ -87,8 +87,8 @@ void sendHandShake(int client) {
 int main(int argc , char *argv[])   
 {   
     int opt = TRUE;   
-    int master_socket , addrlen , new_socket , client_socket[2] ,  
-          max_clients = 2 , activity, i , valread , sd, n;   
+    int master_socket , addrlen , new_socket , client_socket[3] ,  
+          max_clients = 3 , activity, i , valread , sd, n;   
     int max_sd;   
     struct sockaddr_in address;   
          
@@ -170,14 +170,14 @@ int main(int argc , char *argv[])
      
         //add master socket to set  
         FD_SET(master_socket, &readfds);   
-        max_sd = master_socket;   
-             
+        max_sd = master_socket;  
+
         //add child sockets to set  
         for ( i = 0 ; i < max_clients ; i++)   
         {   
             //socket descriptor  
-            sd = client_socket[i];   
-                 
+            sd = client_socket[i];
+
             //if valid socket descriptor then add to read list  
             if(sd > 0)   
                 FD_SET( sd , &readfds);   
@@ -187,10 +187,10 @@ int main(int argc , char *argv[])
                 max_sd = sd;   
         }   
      
-        //wait for an activity on one of the sockets , timeout is NULL ,  
-        //so wait indefinitely  
-        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);   
-       
+        //wait for an activity on one of the sockets , timeout is not NULL because sleep(1) above and not need client to send message back
+        struct timeval tv;
+        tv.tv_sec = 0.1;   
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , &tv);   
         if ((activity < 0) && (errno!=EINTR))   
         {   
             printf("select error");   
@@ -238,12 +238,26 @@ int main(int argc , char *argv[])
         for (i = 0; i < max_clients; i++)   
         {   
             sd = client_socket[i];  
-                
+
+            if (sd > 0) {    
+                // Send message to the client. If error, client is disconnected            
+                n = send(sd,resp,strlen(resp),MSG_NOSIGNAL); 
+                if (n < 0) {
+                    // Not getting correct port
+                    //getpeername(sd, (struct sockaddr*)&address, (socklen_t*)&addrlen);                          
+                    //printf("Host socket fd %i disconnected , ip %s , port %d \n", sd, inet_ntoa(address.sin_addr), ntohs(address.sin_port));                           
+                    //printf("Host socket fd %i disconnected \n", sd);
+                    close(sd);
+                    client_socket[i] = 0;                            
+                };  
+            } 
+
+            /* wait incoming message
             if (FD_ISSET( sd , &readfds))   
             {   
                 //Check if it was for closing , and also read the  
                 //incoming message
-                /*  
+
                 if ((valread = read( sd , buffer, 1024)) == 0)   
                 {   
                     //Somebody disconnected , get his details and print  
@@ -265,21 +279,8 @@ int main(int argc , char *argv[])
                     buffer[valread] = '\0';   
                     send(sd , buffer , strlen(buffer) , 0 );   
                 }
-                */  
-           
-                if (sd > 0) {    
-                    // Send message to the client. If error, client is disconnected            
-                    n = send(sd,resp,strlen(resp),MSG_NOSIGNAL); 
-                    if (n < 0) {
-                        // Not getting correct port
-                        //getpeername(sd, (struct sockaddr*)&address, (socklen_t*)&addrlen);                          
-                        //printf("Host socket fd %i disconnected , ip %s , port %d \n", sd, inet_ntoa(address.sin_addr), ntohs(address.sin_port));                           
-                        //printf("Host socket fd %i disconnected \n", sd);
-                        close(sd);
-                        client_socket[i] = 0;                            
-                    };  
-                }                
             }   
+            */
         }   
     }   
          
