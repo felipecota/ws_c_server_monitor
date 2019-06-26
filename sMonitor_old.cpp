@@ -9,7 +9,7 @@
     #include <sstream> 
         
     // Functions
-    #include "sFuncs.cpp"    
+    #include "sFuncs.cpp"     
 
     int sockfd, client1, client2, portno; 
     // Port where websocket will listen for clients
